@@ -8,35 +8,26 @@ canon::canon(float xo_, float yo_, float angulo_, float velocidad_inicial_)
     velocidad_inicial = velocidad_inicial_;
 }
 
-void canon::imprimir_resultados()
-{
-    cout << xo << endl;
-    cout << yo << endl;
-    cout << angulo << endl;
-    cout << velocidad_inicial << endl;
-}
-
 void canon::o_golpea_d(float x_defensivo, float y_defensivo, int cond){
 
-    float copiax, copiay, vx, vy, raiz;
-    int t;
+    float t;
+
+    bala_ofensiva = new bala(0, 0, 0, 0);
 
     for (velocidad_inicial=0;;velocidad_inicial+=1){
         for (angulo=0; angulo < 90; angulo++){
-            vx=velocidad_inicial*cos(angulo*3.14/180);
-            vy=velocidad_inicial*sin(angulo*3.14/180);
+            bala_ofensiva->calcular_velocidades(velocidad_inicial, angulo);
             for(t=0;;t+=1){
-                copiax=xo+vx*t;
-                copiay=yo+vy*t-(0.5*9.81*t*t);
-                raiz=pow((x_defensivo-copiax),2)+pow((y_defensivo-copiay),2);
-                if (sqrt(raiz)<=(0.05*x_defensivo)){
+                bala_ofensiva->calcular_posiciones(xo, yo, t);
+                if (bala_ofensiva->posy < 0) break;
+                if (sqrt(pow((x_defensivo - bala_ofensiva->posx), 2)+pow((y_defensivo - bala_ofensiva->posy), 2)) <= (0.05*x_defensivo)){
                     cond += 1;
                     cout << "Para que el canon O golpee el D necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
-                    cout << "Y la posicion donde impacta es de: " << copiax << ", " << copiay << endl;
+                    cout << "Y la posicion donde impacta es de: " << bala_ofensiva->posx << ", " << bala_ofensiva->posy << endl;
                     cout << "\n_________________________________________________________________________________________________\n\n\n";
                     break;
                 }
-                if (copiay < 0) break;
+
             }
             if (cond == 3) break;
 
@@ -48,28 +39,24 @@ void canon::o_golpea_d(float x_defensivo, float y_defensivo, int cond){
 
 void canon::d_golpea_o(float x_ofensivo, float y_ofensivo, int cond)
 {
-    float copiax, copiay, vx, vy, raiz;
     int t;
 
-
+    bala_defensiva = new bala(0, 0, 0, 0);
 
     for (velocidad_inicial=0; ;velocidad_inicial+=1){
         for(angulo=0; angulo < 90; angulo++){
+            bala_defensiva->calcular_velocidades(velocidad_inicial, (180 - angulo));
             for(t=0;;t+=1){
-                vx=velocidad_inicial*cos((180-angulo)*3.14/180);
-                vy=velocidad_inicial*sin((180-angulo)*3.14/180);
-                copiax=xo+vx*t;
-                copiay=yo+vy*t-(0.5*9.81*t*t);
-                raiz=pow((x_ofensivo-copiax),2)+pow((y_ofensivo-copiay),2);
-                if (sqrt(raiz)<=(0.025*xo)){
+                bala_defensiva->calcular_posiciones(xo, yo, t);
+                if (bala_defensiva->posy < 0) break;
+                if (sqrt(pow((x_ofensivo - bala_defensiva->posx), 2) + pow((y_ofensivo - bala_defensiva->posy), 2)) <= (0.025*xo)){
                     cond += 1;
-                    cout << "Para que el canon O golpee el D necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
-                    cout << "Y la posicion donde impacta es de: " << copiax << ", " << copiay << endl;
+                    cout << "Para que el canon D golpee el O necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
+                    cout << "Y la posicion donde impacta es de: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
                     cout << "\n_________________________________________________________________________________________________\n\n\n";
 
                     break;
                 }
-                if (copiay < 0) break;
             }
             if (cond == 3) break;
 
@@ -82,31 +69,27 @@ void canon::d_golpea_o(float x_ofensivo, float y_ofensivo, int cond)
 
 void canon::d_defiende_o(float x_ofensivo, float y_ofensivo, float angulo_ofensivo, float vo_ofensivo)
 {
-    float copiax, copiay, copiax2, copiay2, vx, vy, vx2, vy2, raiz;
     int t, cond = 0;
 
+    bala_ofensiva = new bala(0, 0, 0, 0);
+    bala_defensiva = new bala(0, 0, 0, 0);
 
     for (velocidad_inicial = 0; ; velocidad_inicial++){
-        vx2 = vo_ofensivo*cos(angulo_ofensivo*3.14/180);
-        vy2 = vo_ofensivo*sin(angulo_ofensivo*3.14/180);
+        bala_ofensiva->calcular_velocidades(vo_ofensivo, angulo_ofensivo);
         for (angulo = 0; angulo < 90; angulo++){
-            vx = velocidad_inicial*cos((180-angulo)*3.14/180);
-            vy = velocidad_inicial*sin((180-angulo)*3.14/180);
+            bala_defensiva->calcular_velocidades(velocidad_inicial, (180 - angulo));
             for (t = 0; ; t++){
-                copiax = xo+vx*(t);
-                copiay = yo+vy*(t)-(0.5*9.81*(t)*(t));
-                copiax2 = x_ofensivo+vx2*(t+2);
-                copiay2 = y_ofensivo+vy2*(t+2)-(0.5*9.81*(t+2)*(t+2));
-                raiz=pow((copiax-copiax2),2)+pow((copiay-copiay2),2);
-                if (sqrt(raiz)<=(0.025*(copiax))){
+                bala_defensiva->calcular_posiciones(xo, yo, t);
+                bala_ofensiva->calcular_posiciones(x_ofensivo, y_ofensivo, (t+2));
+                if (sqrt(pow((xo - bala_ofensiva->posx),2)+pow((yo - bala_ofensiva->posy),2)) <= (0.5*xo)) break;
+                if (sqrt(pow((bala_ofensiva->posx - bala_defensiva->posx), 2) + pow((bala_ofensiva->posy - bala_defensiva->posy), 2)) <= (0.025*(xo))){
                     cond += 1;
                     cout << "Para que el canon D se defienda de O necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
-                    cout << "Y la posicion donde impacta es de: " << copiax << ", " << copiay << endl;
-                    cout << "pocision bala O: " << copiax2 << ", " << copiay2 << endl;
+                    cout << "Y la posicion donde impacta es de: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
+                    cout << "pocision bala O: " << bala_ofensiva->posx << ", " << bala_ofensiva->posy << endl;
                     cout << "\n_________________________________________________________________________________________________\n\n\n";
                     break;
                 }
-                if (sqrt(pow((xo-copiax2),2)+pow((yo-copiay2),2))<=(0.5*xo)) break;
             }
             if (cond == 3) break;
         }
@@ -118,30 +101,26 @@ void canon::d_defiende_o(float x_ofensivo, float y_ofensivo, float angulo_ofensi
 
 void canon::d_defiendo_o2(float x_ofensivo, float y_ofensivo, float angulo_ofensivo, float vo_ofensivo, int cond)
 {
-    float copiax, copiay, aucopiax, aucopiay, copiax2, copiay2, vx, vy, vx2, vy2, raiz;
     int t, t2, cond2 = 0;
 
+    bala_ofensiva = new bala(0, 0, 0, 0);
+    bala_defensiva = new bala(0, 0, 0, 0);
+    bala_ofensiva_aux = new bala(0, 0, 0, 0);
 
     for (velocidad_inicial = 0; ; velocidad_inicial++){
-        vx2 = vo_ofensivo*cos(angulo_ofensivo*3.14/180);
-        vy2 = vo_ofensivo*sin(angulo_ofensivo*3.14/180);
+        bala_ofensiva->calcular_velocidades(vo_ofensivo, angulo_ofensivo);
         for (angulo = 0; angulo < 90; angulo++){
-            vx = velocidad_inicial*cos((180-angulo)*3.14/180);
-            vy = velocidad_inicial*sin((180-angulo)*3.14/180);
+            bala_defensiva->calcular_velocidades(velocidad_inicial, (180 - angulo));
             for (t = 0; ; t++){
-                copiax = xo+vx*(t);
-                copiay = yo+vy*(t)-(0.5*9.81*(t)*(t));
-                copiax2 = x_ofensivo+vx2*(t+2);
-                copiay2 = y_ofensivo+vy2*(t+2)-(0.5*9.81*(t+2)*(t+2));
-                raiz=pow((copiax-copiax2),2)+pow((copiay-copiay2),2);
+                bala_defensiva->calcular_posiciones(xo, yo, t);
+                bala_ofensiva->calcular_posiciones(x_ofensivo, y_ofensivo, (t+2));
                 for (t2 = t; ; t2++){
-                    aucopiax = xo+vx*(t2);
-                    aucopiay = yo+vy*t2-(0.5*9.81*(t2)*(t2));
-                    if (sqrt(pow((x_ofensivo - aucopiax),2)+pow((y_ofensivo - aucopiay),2)) < 0.025*xo){
+                    bala_ofensiva_aux->calcular_posiciones(xo, yo, t2);
+                    if (sqrt(pow((x_ofensivo - bala_ofensiva_aux->posx),2)+pow((y_ofensivo - bala_ofensiva_aux->posy),2)) <= 0.025*xo){
                         cond2 = 1;
                         break;
                     }
-                    if (aucopiay < 0){
+                    if (bala_ofensiva_aux->posy < 0){
                         break;
                     }
                 }
@@ -150,23 +129,23 @@ void canon::d_defiendo_o2(float x_ofensivo, float y_ofensivo, float angulo_ofens
                     cond2 = 0;
                     break;
                 }
-                if (sqrt(raiz)<=(0.025*(xo - copiax2))){
+                if (sqrt(pow((xo - bala_ofensiva->posx), 2)+pow((yo - bala_ofensiva->posy), 2))<=(0.5*xo)) break;
+                if (sqrt(pow((bala_defensiva->posx - bala_ofensiva->posx), 2) + pow((bala_defensiva->posy - bala_ofensiva->posy), 2)) <= (0.025*(xo))){
 
-                    if (sqrt(pow((xo-copiax2),2)+pow((yo-copiay2),2))<=(0.05*xo)){
-                        cout << sqrt(pow((xo-copiax2),2)+pow((yo-copiay2),2)) << endl;
+                    if (sqrt(pow((xo - bala_ofensiva->posx), 2)+pow((yo - bala_ofensiva->posy), 2)) <= (0.05*xo)){
                         cout << "No es posible defenderse con el disparo: " << endl;
-                        cout << "pocision bala D: " << copiax << ", " << copiay << endl;
+                        cout << "pocision bala D: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
+                        break;
                     }
                     else{
                         cout << "Para que el canon D se defienda de O necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
-                        cout << "Y la posicion donde impacta es de: " << copiax << ", " << copiay << endl;
-                        cout << "pocision bala O: " << copiax2 << ", " << copiay2 << endl;
+                        cout << "Y la posicion donde impacta es de: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
+                        cout << "pocision bala O: " << bala_ofensiva->posx << ", " << bala_ofensiva->posy << endl;
                         cout << "\n_________________________________________________________________________________________________\n\n\n";
                         cond += 1;
                     }
                     break;
                 }
-                if (sqrt(pow((xo-copiax2),2)+pow((yo-copiay2),2))<=(0.5*xo)) break;
             }
             if (cond == 3) break;
         }
@@ -174,31 +153,32 @@ void canon::d_defiendo_o2(float x_ofensivo, float y_ofensivo, float angulo_ofens
     }
 }
 
-void canon::o_defiende_d(float x_defensivo, float y_defensivo, float angulo_defensivo, float vo_defensivo, float bala_ox, float bala_oy)
+void canon::o_defiende_d(float x_defensivo, float y_defensivo, float angulo_defensivo, float vo_defensivo)
 {
-    float copiax, copiay, copiax2, copiay2, copiax3, copiay3, vx, vy, vx2, vy2, vx3, vy3, auxvo, auxangulo, t, cond = 0;
-    for (auxvo = 0; ; auxvo++){
-        vx2 = velocidad_inicial*cos(angulo*3.14/180);
-        vy2 = velocidad_inicial*sin(angulo*3.14/180);
-        vx3 = vo_defensivo*cos((180-angulo_defensivo)*3.14/180);
-        vy3 = vo_defensivo*sin((180-angulo_defensivo)*3.14/180);
+    float t, cond = 0, auxvel, auxangulo;
+
+    bala_ofensiva = new bala(0, 0, 0, 0);
+    bala_defensiva = new bala(0, 0, 0, 0);
+    bala_ofensiva_aux = new bala(0, 0, 0, 0);
+
+    for (auxvel = 0; ; auxvel++){
+        bala_ofensiva->calcular_velocidades(velocidad_inicial, angulo);
+        bala_defensiva->calcular_velocidades(vo_defensivo, (180 - angulo_defensivo));
         for (auxangulo = 0; auxangulo < 90; auxangulo++){
-            vx = auxvo*cos(auxangulo*3.14/180);
-            vy = auxvo*sin(auxangulo*3.14/180);
-            for (t = 0; ; t++){                                               //Segundo disparo ofensivo
-                copiax = xo+vx*t;
-                copiay = yo+vy*(t)-(0.5*9.81*(t)*(t));
-                copiax2 = xo+vx2*(t+3);                                       //Primer disparo ofensivo
-                copiay2 = yo+vy2*(t+3)-(0.5*9.81*(t+3)*(t+3));
-                copiax3 = x_defensivo+vx3*(t+1);                              //Disparo defensivo
-                copiay3 = y_defensivo+vy3*(t+1)-(0.5*9.81*(t+1)*(t+1));
+            bala_ofensiva_aux->calcular_velocidades(auxvel, auxangulo);
+            for (t = 0; ; t++){
+                bala_ofensiva_aux->calcular_posiciones(xo, yo, (t));
+                bala_ofensiva->calcular_posiciones(xo, yo, (t+3));
+                bala_defensiva->calcular_posiciones(x_defensivo, y_defensivo, (t+1));
 
-                if (sqrt(pow((copiax2 - copiax3),2)+pow((copiay2 - copiay3),2)) < 0.025*x_defensivo) break;
+                if (sqrt(pow((bala_ofensiva->posx - bala_ofensiva_aux->posx), 2)+pow((bala_ofensiva->posy - bala_ofensiva_aux->posy), 2)) <= 0.005*x_defensivo) break;
 
-                else if (sqrt(pow((copiax3 - copiax),2)+pow((copiay3 - copiay),2)) <= 0.005*x_defensivo){
-                    cout << "Para que el canon D se defienda de O necesita una velocidad de:" << auxvo << " en un tiempo: " << t << " con un angulo de: " << auxangulo <<  endl;
-                    cout << "Y la posicion donde impacta es de: " << copiax << ", " << copiay << endl;
-                    cout << "pocision bala D: " << copiax3 << ", " << copiay3 << endl;
+                if (sqrt(pow((bala_ofensiva->posx - bala_defensiva->posx), 2)+pow((bala_ofensiva->posy - bala_defensiva->posy), 2)) < 0.025*x_defensivo) break;
+
+                else if (sqrt(pow((bala_defensiva->posx - bala_ofensiva_aux->posx), 2)+pow((bala_defensiva->posy - bala_ofensiva_aux->posy), 2)) <= 0.005*x_defensivo){
+                    cout << "Para que el canon O defienda su primer disparo del O necesita una velocidad de:" << auxvel << " en un tiempo: " << t << " con un angulo de: " << auxangulo <<  endl;
+                    cout << "Y la posicion donde impacta es de: " << bala_ofensiva_aux->posx << ", " << bala_ofensiva_aux->posy << endl;
+                    cout << "pocision bala D: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
                     cout << "\n_________________________________________________________________________________________________\n\n\n";
                     cond += 1;
                     break;
@@ -210,6 +190,7 @@ void canon::o_defiende_d(float x_defensivo, float y_defensivo, float angulo_defe
         if (cond == 3) break;
     }
 }
+
 
 
 
