@@ -24,7 +24,7 @@ void canon::o_golpea_d(float x_defensivo, float y_defensivo, int cond){
                     cond += 1;
                     cout << "Para que el canon O golpee el D necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
                     cout << "Y la posicion donde impacta es de: " << bala_ofensiva->posx << ", " << bala_ofensiva->posy << endl;
-                    cout << "\n_________________________________________________________________________________________________\n\n\n";
+                    cout << "_________________________________________________________________________________________________\n\n\n";
                     break;
                 }
 
@@ -53,7 +53,7 @@ void canon::d_golpea_o(float x_ofensivo, float y_ofensivo, int cond)
                     cond += 1;
                     cout << "Para que el canon D golpee el O necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
                     cout << "Y la posicion donde impacta es de: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
-                    cout << "\n_________________________________________________________________________________________________\n\n\n";
+                    cout << "_________________________________________________________________________________________________\n\n\n";
 
                     break;
                 }
@@ -87,7 +87,7 @@ void canon::d_defiende_o(float x_ofensivo, float y_ofensivo, float angulo_ofensi
                     cout << "Para que el canon D se defienda de O necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
                     cout << "Y la posicion donde impacta es de: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
                     cout << "pocision bala O: " << bala_ofensiva->posx << ", " << bala_ofensiva->posy << endl;
-                    cout << "\n_________________________________________________________________________________________________\n\n\n";
+                    cout << "_________________________________________________________________________________________________\n\n\n";
                     break;
                 }
             }
@@ -141,7 +141,7 @@ void canon::d_defiendo_o2(float x_ofensivo, float y_ofensivo, float angulo_ofens
                         cout << "Para que el canon D se defienda de O necesita una velocidad de:" << velocidad_inicial << " en un tiempo: " << t << " con un angulo de: " << angulo <<  endl;
                         cout << "Y la posicion donde impacta es de: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
                         cout << "pocision bala O: " << bala_ofensiva->posx << ", " << bala_ofensiva->posy << endl;
-                        cout << "\n_________________________________________________________________________________________________\n\n\n";
+                        cout << "_________________________________________________________________________________________________\n\n\n";
                         cond += 1;
                     }
                     break;
@@ -179,7 +179,7 @@ void canon::o_defiende_d(float x_defensivo, float y_defensivo, float angulo_defe
                     cout << "Para que el canon O defienda su primer disparo del O necesita una velocidad de:" << auxvel << " en un tiempo: " << t << " con un angulo de: " << auxangulo <<  endl;
                     cout << "Y la posicion donde impacta es de: " << bala_ofensiva_aux->posx << ", " << bala_ofensiva_aux->posy << endl;
                     cout << "pocision bala D: " << bala_defensiva->posx << ", " << bala_defensiva->posy << endl;
-                    cout << "\n_________________________________________________________________________________________________\n\n\n";
+                    cout << "_________________________________________________________________________________________________\n\n\n";
                     cond += 1;
                     break;
                 }
